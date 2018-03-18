@@ -1,0 +1,29 @@
+{
+  "name": "koa-lazy-fin",
+  "version": "1.0.0",
+  "description": "lazy finance",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-server": "nodemon --watch 'src/**/*' -e ts,tsx --exec 'ts-node' ./src/server.ts"
+  },
+  "author": "Clément Bizeau",
+  "license": "APACHE 2",
+  "dependencies": {
+    "koa": "^2.5.0",
+    "koa-router": "^7.4.0",
+    "koa2-cors": "^2.0.5",
+    "request": "^2.85.0",
+    "request-promise-native": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.0.44",
+    "@types/koa-router": "^7.0.27",
+    "@types/koa2-cors": "^2.0.1",
+    "@types/request": "^2.47.0",
+    "@types/request-promise-native": "^1.0.14",
+    "nodemon": "^1.17.2",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.7.2"
+  }
+}
