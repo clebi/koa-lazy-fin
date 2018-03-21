@@ -16,11 +16,11 @@ import * as Koa from 'koa';
 import * as cors from 'koa2-cors';
 import * as Router from 'koa-router';
 import * as request from 'request-promise-native';
-import { AlphaVantageApi, StocksApi } from './services/stocks';
+import { AlphaVantageApi } from './services/alpha-vantage';
 
 const app = new Koa();
 const router = new Router();
-let stocksApi: StocksApi = new AlphaVantageApi();
+let stocksApi = new AlphaVantageApi();
 
 class CloseHist {
   constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mv_close: number) { }
@@ -32,15 +32,15 @@ router.get('/history/list', async (ctx, next) => {
     var sma = await stocksApi.getSMA(symbol);
     var hist = await stocksApi.getHistory(symbol);
     let stock = new Array<CloseHist>();
-    for (let day in hist['Time Series (Daily)']) {
-      if (hist['Time Series (Daily)'][day]['4. close'] <= 0) {
+    for (let day of hist) {
+      if (day.close <= 0) {
         continue;
       }
       stock.push(new CloseHist(
-        symbol,
-        new Date(day).getTime(),
-        hist['Time Series (Daily)'][day]['4. close'],
-        sma['Technical Analysis: SMA'][day]['SMA'])
+        day.symbol,
+        day.mstime,
+        day.close,
+        sma.get(day.mstime).value)
       );
     }
     stocks.push(stock);
