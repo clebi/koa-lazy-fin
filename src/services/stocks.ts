@@ -12,32 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Koa from 'koa';
-import * as cors from 'koa2-cors';
-import * as Router from 'koa-router';
-import * as request from 'request-promise-native';
-import { Stocks } from './services/stocks';
+import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
+import { filter, flatMap, map, toArray } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import { AlphaVantageApi } from './alpha-vantage';
 
-const app = new Koa();
-const router = new Router();
-let stocksApi = new Stocks();
+let provider = new AlphaVantageApi();
 
 class CloseHist {
   constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mv_close: number) { }
 }
 
-router.get('/history/list', async (ctx, next) => {
-  let stocks = new Array<CloseHist[]>();
-  for (let symbol of ctx.query.symbols) {
-    let stock = await stocksApi.getCloseHist(symbol).toPromise();
-    stocks.push(stock);
-  }
-  ctx.type = 'application/json';
-  ctx.body = JSON.stringify(stocks);
-});
+export class Stocks {
 
-app
-  .use(cors())
-  .use(router.routes())
-  .use(router.allowedMethods())
-  .listen(3000);
+  getCloseHist(symbol: string) : Observable<CloseHist[]> {
+    let sma_res = provider.getSMA(symbol);
+    return provider.getHistory(symbol).pipe(
+      flatMap(hist => sma_res.pipe(
+          map(sma => new CloseHist(hist.symbol, hist.mstime, hist.close, sma.get(hist.mstime).value))
+        )
+      ),
+      filter(value => value.close > 0),
+      toArray()
+    )
+  }
+
+}

@@ -15,8 +15,9 @@
 import * as request from 'request-promise-native';
 import { Observable } from 'rxjs/Observable';
 import { fromPromise } from 'rxjs/observable/fromPromise';
+import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
-import { map, flatMap, reduce } from 'rxjs/operators';
+import { map, flatMap } from 'rxjs/operators';
 
 class SMAPoint {
   constructor(readonly symbol: string, readonly mstime: number, readonly value: number) { }
@@ -31,7 +32,7 @@ export class AlphaVantageApi {
   private readonly api_url = 'https://www.alphavantage.co/query';
   private readonly api_key = 'PQKR6O30ZYPDPABM';
 
-  public async getHistory(symbol: string): Promise<HistoryPoint[]> {
+  public getHistory(symbol: string): Observable<HistoryPoint> {
     return fromPromise(request({
       url: this.api_url, qs: {
         'function': 'TIME_SERIES_DAILY',
@@ -40,18 +41,17 @@ export class AlphaVantageApi {
       }, json: true
     })).pipe(
       map(value => new Map(Object.entries(value['Time Series (Daily)']))),
-      map(value => {
+      flatMap(value => {
         let points = new Array<HistoryPoint>();
         value.forEach((value: any, key: string) => {
           points.push(new HistoryPoint(symbol, new Date(key).getTime(), value['4. close']));
         });
         return points;
       })
-    )
-      .toPromise();
+    );
   }
 
-  public async getSMA(symbol: string): Promise<Map<number, SMAPoint>> {
+  public getSMA(symbol: string): Observable<Map<number, SMAPoint>> {
     return fromPromise(request({
       url: this.api_url, qs: {
         'function': 'SMA',
@@ -69,8 +69,8 @@ export class AlphaVantageApi {
           points.set(new Date(key).getTime(), new SMAPoint(symbol, new Date(key).getTime(), value['SMA']));
         });
         return points;
-      }),
-    ).toPromise();
+      })
+    );
   }
 
 }
