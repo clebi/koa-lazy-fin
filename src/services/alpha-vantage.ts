@@ -29,47 +29,47 @@ class HistoryPoint {
 
 export class AlphaVantageApi {
 
-  private readonly api_url = 'https://www.alphavantage.co/query';
-  private readonly api_key = 'PQKR6O30ZYPDPABM';
+  private readonly apiUrl = 'https://www.alphavantage.co/query';
+  private readonly apiKey = 'PQKR6O30ZYPDPABM';
 
   public getHistory(symbol: string): Observable<HistoryPoint> {
     return fromPromise(request({
-      url: this.api_url, qs: {
-        'function': 'TIME_SERIES_DAILY',
-        'symbol': symbol,
-        'apikey': this.api_key,
-      }, json: true
+      url: this.apiUrl, qs: {
+        function: 'TIME_SERIES_DAILY',
+        symbol,
+        apikey: this.apiKey,
+      }, json: true,
     })).pipe(
       map(value => new Map(Object.entries(value['Time Series (Daily)']))),
       flatMap(value => {
-        let points = new Array<HistoryPoint>();
+        const points = new Array<HistoryPoint>();
         value.forEach((value: any, key: string) => {
           points.push(new HistoryPoint(symbol, new Date(key).getTime(), value['4. close']));
         });
         return points;
-      })
+      }),
     );
   }
 
   public getSMA(symbol: string): Observable<Map<number, SMAPoint>> {
     return fromPromise(request({
-      url: this.api_url, qs: {
-        'function': 'SMA',
-        'symbol': symbol,
-        'interval': 'daily',
-        'time_period': 30,
-        'series_type': 'close',
-        'apikey': this.api_key,
-      }, json: true
+      url: this.apiUrl, qs: {
+        function: 'SMA',
+        symbol,
+        interval: 'daily',
+        time_period: 30,
+        series_type: 'close',
+        apikey: this.apiKey,
+      }, json: true,
     })).pipe(
       map(value => new Map(Object.entries(value['Technical Analysis: SMA']))),
       map(value => {
-        let points = new Map<number, SMAPoint>();
+        const points = new Map<number, SMAPoint>();
         value.forEach((value: any, key: string) => {
           points.set(new Date(key).getTime(), new SMAPoint(symbol, new Date(key).getTime(), value['SMA']));
         });
         return points;
-      })
+      }),
     );
   }
 

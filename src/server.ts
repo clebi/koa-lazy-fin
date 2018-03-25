@@ -16,20 +16,16 @@ import * as Koa from 'koa';
 import * as cors from 'koa2-cors';
 import * as Router from 'koa-router';
 import * as request from 'request-promise-native';
-import { Stocks } from './services/stocks';
+import { Stocks, CloseHist } from './services/stocks';
 
 const app = new Koa();
 const router = new Router();
-let stocksApi = new Stocks();
-
-class CloseHist {
-  constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mv_close: number) { }
-}
+const stocksApi = new Stocks();
 
 router.get('/history/list', async (ctx, next) => {
-  let stocks = new Array<CloseHist[]>();
-  for (let symbol of ctx.query.symbols) {
-    let stock = await stocksApi.getCloseHist(symbol).toPromise();
+  const stocks : CloseHist[][] = [];
+  for (const symbol of ctx.query.symbols) {
+    const stock = await stocksApi.getCloseHist(symbol).toPromise();
     stocks.push(stock);
   }
   ctx.type = 'application/json';

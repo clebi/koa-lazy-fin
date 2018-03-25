@@ -15,27 +15,27 @@
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { filter, flatMap, map, toArray } from 'rxjs/operators';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 import { AlphaVantageApi } from './alpha-vantage';
 
-let provider = new AlphaVantageApi();
+const provider = new AlphaVantageApi();
 
-class CloseHist {
-  constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mv_close: number) { }
+export class CloseHist {
+  constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mvClose: number) { }
 }
 
 export class Stocks {
 
-  getCloseHist(symbol: string) : Observable<CloseHist[]> {
-    let sma_res = provider.getSMA(symbol);
+  getCloseHist(symbol: string): Observable<CloseHist[]> {
+    const smaRes = provider.getSMA(symbol);
     return provider.getHistory(symbol).pipe(
-      flatMap(hist => sma_res.pipe(
-          map(sma => new CloseHist(hist.symbol, hist.mstime, hist.close, sma.get(hist.mstime).value))
-        )
+      flatMap(
+        hist => smaRes.pipe(
+          map(sma => new CloseHist(hist.symbol, hist.mstime, hist.close, sma.get(hist.mstime).value)),
+        ),
       ),
       filter(value => value.close > 0),
-      toArray()
-    )
+      toArray(),
+    );
   }
 
 }
