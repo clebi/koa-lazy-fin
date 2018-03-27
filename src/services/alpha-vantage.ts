@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { injectable } from 'inversify';
+import 'reflect-metadata';
 import * as request from 'request-promise-native';
 import { Observable } from 'rxjs/Observable';
 import { fromPromise } from 'rxjs/observable/fromPromise';
@@ -19,14 +21,15 @@ import { of } from 'rxjs/observable/of';
 import { from } from 'rxjs/observable/from';
 import { map, flatMap } from 'rxjs/operators';
 
-class SMAPoint {
+export class SMAPoint {
   constructor(readonly symbol: string, readonly mstime: number, readonly value: number) { }
 }
 
-class HistoryPoint {
+export class HistoryPoint {
   constructor(readonly symbol: string, readonly mstime: number, readonly close: number) { }
 }
 
+@injectable()
 export class AlphaVantageApi {
 
   private readonly apiUrl = 'https://www.alphavantage.co/query';

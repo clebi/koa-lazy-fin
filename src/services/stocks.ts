@@ -12,22 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { injectable, inject } from 'inversify';
+import 'reflect-metadata';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { filter, flatMap, map, toArray } from 'rxjs/operators';
 import { AlphaVantageApi } from './alpha-vantage';
 
-const provider = new AlphaVantageApi();
-
 export class CloseHist {
   constructor(readonly symbol: string, readonly mstime: number, readonly close: number, readonly mvClose: number) { }
 }
 
+@injectable()
 export class Stocks {
 
+  private provider: AlphaVantageApi;
+
+  constructor(
+    @inject(AlphaVantageApi.name) provider: AlphaVantageApi,
+  ) {
+    this.provider = provider;
+  }
+
   getCloseHist(symbol: string): Observable<CloseHist[]> {
-    const smaRes = provider.getSMA(symbol);
-    return provider.getHistory(symbol).pipe(
+    const smaRes = this.provider.getSMA(symbol);
+    return this.provider.getHistory(symbol).pipe(
       flatMap(
         hist => smaRes.pipe(
           map(sma => new CloseHist(hist.symbol, hist.mstime, hist.close, sma.get(hist.mstime).value)),

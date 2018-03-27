@@ -16,14 +16,15 @@ import * as Koa from 'koa';
 import * as cors from 'koa2-cors';
 import * as Router from 'koa-router';
 import * as request from 'request-promise-native';
+import { depenciesContainer } from './inversify.config';
 import { Stocks, CloseHist } from './services/stocks';
 
 const app = new Koa();
 const router = new Router();
-const stocksApi = new Stocks();
+const stocksApi = depenciesContainer.get<Stocks>(Stocks.name);
 
 router.get('/history/list', async (ctx, next) => {
-  const stocks : CloseHist[][] = [];
+  const stocks: CloseHist[][] = [];
   for (const symbol of ctx.query.symbols) {
     const stock = await stocksApi.getCloseHist(symbol).toPromise();
     stocks.push(stock);
