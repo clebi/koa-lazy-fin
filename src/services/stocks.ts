@@ -15,7 +15,6 @@
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import { filter, flatMap, map, toArray } from 'rxjs/operators';
 import { AlphaVantageApi } from './alpha-vantage';
 

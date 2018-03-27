@@ -27,8 +27,8 @@ describe('stocks services', () => {
     });
     const stocks = new Stocks(mockApi.object);
     const hist = await stocks.getCloseHist(TEST_SYMBOL).toPromise();
-    expect(hist).to.be.a('array');
-    expect(hist.length).to.be.eq(2);
+    expect(hist).to.be.a(Array.name);
+    expect(hist.length).to.be.eq(TEST_HISTORY_POINTS.length);
     hist.forEach((item, index) => {
       expect(item.symbol).to.be.eq(TEST_SYMBOL);
       expect(item.mstime).to.be.eq(TEST_HISTORY_POINTS[index].mstime);

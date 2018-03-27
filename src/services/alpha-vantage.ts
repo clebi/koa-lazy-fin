@@ -17,8 +17,6 @@ import 'reflect-metadata';
 import * as request from 'request-promise-native';
 import { Observable } from 'rxjs/Observable';
 import { fromPromise } from 'rxjs/observable/fromPromise';
-import { of } from 'rxjs/observable/of';
-import { from } from 'rxjs/observable/from';
 import { map, flatMap } from 'rxjs/operators';
 
 export class SMAPoint {
@@ -38,14 +36,14 @@ export class AlphaVantageApi {
   public getHistory(symbol: string): Observable<HistoryPoint> {
     return fromPromise(request({
       url: this.apiUrl, qs: {
-        function: 'TIME_SERIES_DAILY',
         symbol,
+        function: 'TIME_SERIES_DAILY',
         apikey: this.apiKey,
       }, json: true,
     })).pipe(
       map(value => new Map(Object.entries(value['Time Series (Daily)']))),
-      flatMap(value => {
-        const points = new Array<HistoryPoint>();
+      flatMap((value) => {
+        const points: HistoryPoint[] = [];
         value.forEach((value: any, key: string) => {
           points.push(new HistoryPoint(symbol, new Date(key).getTime(), value['4. close']));
         });
@@ -57,8 +55,8 @@ export class AlphaVantageApi {
   public getSMA(symbol: string): Observable<Map<number, SMAPoint>> {
     return fromPromise(request({
       url: this.apiUrl, qs: {
-        function: 'SMA',
         symbol,
+        function: 'SMA',
         interval: 'daily',
         time_period: 30,
         series_type: 'close',
@@ -66,7 +64,7 @@ export class AlphaVantageApi {
       }, json: true,
     })).pipe(
       map(value => new Map(Object.entries(value['Technical Analysis: SMA']))),
-      map(value => {
+      map((value) => {
         const points = new Map<number, SMAPoint>();
         value.forEach((value: any, key: string) => {
           points.set(new Date(key).getTime(), new SMAPoint(symbol, new Date(key).getTime(), value['SMA']));

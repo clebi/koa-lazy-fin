@@ -15,7 +15,6 @@
 import * as Koa from 'koa';
 import * as cors from 'koa2-cors';
 import * as Router from 'koa-router';
-import * as request from 'request-promise-native';
 import { depenciesContainer } from './inversify.config';
 import { Stocks, CloseHist } from './services/stocks';
 
