@@ -17,7 +17,7 @@ const TEST_SMA_POINTS: Map<number, SMAPoint> = new Map([
 ]);
 
 describe('stocks services', () => {
-  it('should two CloseHist', async () => {
+  it('should get two CloseHist as result', async () => {
     const mockApi: TypeMoq.IMock<AlphaVantageApi> = TypeMoq.Mock.ofType<AlphaVantageApi>();
     mockApi.setup(x => x.getHistory(TEST_SYMBOL)).returns(() => {
       return from(TEST_HISTORY_POINTS);
